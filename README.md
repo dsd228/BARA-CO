@@ -1,1 +1,1 @@
-# BAR-CO
+# BARÁ-CO
