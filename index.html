@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Meta tags para PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bara & Co">
+<meta name="theme-color" content="#0A0A0A">
+
+<!-- Iconos para iOS -->
+<link rel="apple-touch-icon" href="assets/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192x192.png">
+<link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-192x192.png">
+
+<!-- Service Worker -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                console.log('Service Worker registrado con éxito:', registration.scope);
+            }).catch(function(error) {
+                console.log('Error al registrar Service Worker:', error);
+            });
+            
+            // Solicitar permisos de notificaciones (opcional)
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        });
+    }
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Bara & Co · Indumentaria Urbana</title>
@@ -594,4 +626,5 @@
         });
     </script>
 </body>
+
 </html>
