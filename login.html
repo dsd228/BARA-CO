@@ -1,1 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Iniciar Sesión</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 80px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        }
 
+        .auth-container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            padding: 50px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-logo {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .auth-tab {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            padding-bottom: 15px;
+            margin-bottom: -16px;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: var(--color-text-primary);
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.6s;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--color-text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(124, 140, 125, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #ff4444;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--color-text-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .auth-btn:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: var(--color-text-primary);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        .demo-credentials {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .demo-credentials p {
+            margin: 5px 0;
+        }
+
+        .demo-credentials strong {
+            color: var(--color-text-primary);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 40px 20px;
+            }
+            
+            .auth-tabs {
+                gap: 15px;
+            }
+            
+            .auth-tab {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursor Personalizado -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Inicio</a></li>
+                    <li><a href="tienda.html" class="nav-link">Tienda</a></li>
+                    <li><a href="lookbook.html" class="nav-link">Lookbook</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="login.html"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Auth Page -->
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <span class="auth-logo">Bara & Co</span>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                ¡Registro exitoso! Redirigiendo...
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="cambiarTab('login')">Iniciar Sesión</div>
+                <div class="auth-tab" onclick="cambiarTab('registro')">Crear Cuenta</div>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginForm" class="auth-form active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="loginPassword" placeholder="••••••••" required>
+                            <i class="far fa-eye toggle-password" onclick="togglePasswordVisibility(this)"></i>
+                        </div>
+                        <div class="error-message" id="loginError"></div>
+                    </div>
+                    <button type="submit" class="auth-btn">INICIAR SESIÓN</button>
+                </form>
+
+                <div class="demo-credentials">
+                    <p><strong>🔐 Demo Admin:</strong></p>
+                    <p>Email: admin@barayco.com</p>
+                    <p>Contraseña: admin123</p>
+                    <p style="margin-top: 10px;"><strong>👤 Demo Cliente:</strong></p>
+                    <p>Email: cliente@demo.com</p>
+                    <p>Contraseña: cliente123</p>
+                </div>
+
+                <div class="auth-footer">
+                    ¿No tenés cuenta? <a onclick="cambiarTab('registro')">Crear cuenta</a>
+                </div>
+            </div>
+
+            <!-- REGISTRO FORM -->
+            <div id="registroForm" class="auth-form">
+                <form onsubmit="handleRegistro(event)">
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="regNombre" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" required>
+                            <i class="far fa-eye toggle-password" onclick="togglePasswordVisibility(this)"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar contraseña</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="regConfirmPassword" placeholder="Confirmá tu contraseña" required>
+                            <i class="far fa-eye toggle-password" onclick="togglePasswordVisibility(this)"></i>
+                        </div>
+                        <div class="error-message" id="registroError"></div>
+                    </div>
+                    <button type="submit" class="auth-btn">CREAR CUENTA</button>
+                </form>
+
+                <div class="auth-footer">
+                    ¿Ya tenés cuenta? <a onclick="cambiarTab('login')">Iniciar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Bara & Co</div>
+                    <p class="footer-text">Indumentaria urbana con personalidad. Diseño y confort para tu día a día.</p>
+                    <div class="social-icons">
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-facebook-f"></i>
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-title">Categorías</h4>
+                    <ul class="footer-links">
+                        <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
+                        <li><a href="tienda.html?categoria=hombre">Hombre</a></li>
+                        <li><a href="tienda.html?categoria=accesorios">Accesorios</a></li>
+                        <li><a href="tienda.html?categoria=sale">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Ayuda</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Cambios y devoluciones</a></li>
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p class="footer-text">Sumate. 10% OFF en tu primera compra.</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Tu email">
+                        <button><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="legal-info">
+                    <span>© 2026 Bara & Co</span>
+                    <span>CUIT 30-71234567-8</span>
+                    <span>Ing. Olmos 139 – Jesús María</span>
+                </div>
+                <div class="legal-info">
+                    <span>Términos y condiciones</span>
+                    <span>Política de privacidad</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CARRITO FLOTANTE (GLOBAL) -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // ---------- LOGIN PAGE SCRIPT ----------
+        function cambiarTab(tab) {
+            // Actualizar tabs
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registroForm').classList.add('active');
+            }
+        }
+
+        function togglePasswordVisibility(element) {
+            const input = element.previousElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                element.classList.remove('fa-eye');
+                element.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                element.classList.remove('fa-eye-slash');
+                element.classList.add('fa-eye');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.textContent = 'Completá todos los campos';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            const success = iniciarSesion(email, password);
+            
+            if (!success) {
+                errorEl.textContent = 'Email o contraseña incorrectos';
+                errorEl.classList.add('show');
+            } else {
+                // Redirigir según el parámetro redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect') || 'index.html';
+                setTimeout(() => {
+                    window.location.href = redirect;
+                }, 1500);
+            }
+        }
+
+        function handleRegistro(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('regNombre').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const errorEl = document.getElementById('registroError');
+            
+            if (!nombre || !email || !password || !confirmPassword) {
+                errorEl.textContent = 'Completá todos los campos';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'Las contraseñas no coinciden';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            const success = registrarUsuario(nombre, email, password);
+            
+            if (success) {
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        }
+
+        // Verificar si viene de un redirect
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'registro') {
+                cambiarTab('registro');
+            }
+            
+            // Si ya está logueado, redirigir
+            if (estaLogueado()) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
