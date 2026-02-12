@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Single Page App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        /* Estilos específicos para SPA */
+        #app {
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.6s;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+        }
+
+        .page.active .fade-in {
+            animation: fadeSlideUp 0.8s forwards;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-text-primary);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .page-transition.active {
+            opacity: 1;
+        }
+
+        .transition-logo {
+            font-family: var(--font-serif);
+            color: white;
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            transform: scale(0.8);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .page-transition.active .transition-logo {
+            transform: scale(1);
+        }
+
+        /* Hero SPA */
+        .spa-hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+            color: white;
+        }
+
+        .spa-hero-title {
+            font-family: var(--font-serif);
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .spa-hero-title span {
+            color: var(--color-accent);
+            font-style: italic;
+        }
+
+        /* Tienda SPA */
+        .spa-shop {
+            padding: 120px 0 80px;
+        }
+
+        .spa-shop-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .spa-shop-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .spa-products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .spa-product-card {
+            cursor: pointer;
+        }
+
+        .spa-product-image {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .spa-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .spa-product-card:hover .spa-product-image img {
+            transform: scale(1.05);
+        }
+
+        /* About SPA */
+        .spa-about {
+            padding: 120px 0;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .spa-about-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .spa-about-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        /* Contacto SPA */
+        .spa-contact {
+            padding: 120px 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .spa-contact-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .spa-form-group {
+            margin-bottom: 20px;
+        }
+
+        .spa-form-group input,
+        .spa-form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            font-family: var(--font-sans);
+            transition: border-color 0.3s;
+        }
+
+        .spa-form-group input:focus,
+        .spa-form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .spa-submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--color-text-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .spa-submit-btn:hover {
+            background: var(--color-accent);
+        }
+
+        @media (max-width: 1024px) {
+            .spa-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .spa-hero-title {
+                font-size: 3rem;
+            }
+            
+            .spa-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .spa-about-title,
+            .spa-contact-title {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- TRANSITION LOADER -->
+    <div class="page-transition" id="pageTransition">
+        <div class="transition-logo">BARA & CO</div>
+    </div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="#" class="logo" onclick="navegarA('home'); return false;">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" class="nav-link active" data-page="home" onclick="navegarA('home'); return false;">Inicio</a></li>
+                    <li><a href="#" class="nav-link" data-page="shop" onclick="navegarA('shop'); return false;">Tienda</a></li>
+                    <li><a href="#" class="nav-link" data-page="about" onclick="navegarA('about'); return false;">Sobre Nosotros</a></li>
+                    <li><a href="#" class="nav-link" data-page="contact" onclick="navegarA('contact'); return false;">Contacto</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="#"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- APP CONTAINER -->
+    <div id="app">
+        <!-- PÁGINA HOME -->
+        <div id="home" class="page active">
+            <section class="spa-hero">
+                <div style="padding: 0 20px;">
+                    <h1 class="spa-hero-title fade-in">Armá tu <span>estilo</span></h1>
+                    <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;" class="fade-in">Esencia urbana. Confort atemporal.</p>
+                    <button class="btn fade-in" onclick="navegarA('shop')">Descubrir colección</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- PÁGINA SHOP -->
+        <div id="shop" class="page">
+            <div class="spa-shop">
+                <div class="container">
+                    <div class="spa-shop-header">
+                        <h2 class="spa-shop-title fade-in">Tienda</h2>
+                        <p style="color: var(--color-text-secondary);" class="fade-in">Descubrí nuestra colección completa</p>
+                    </div>
+                    
+                    <div class="spa-products-grid">
+                        <div class="spa-product-card fade-in" onclick="window.location.href='producto.html?id=1'">
+                            <div class="spa-product-image">
+                                <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Remera">
+                            </div>
+                            <h3>Remera Oversize</h3>
+                            <p style="color: var(--color-text-secondary);">$7.999</p>
+                        </div>
+                        
+                        <div class="spa-product-card fade-in" onclick="window.location.href='producto.html?id=3'">
+                            <div class="spa-product-image">
+                                <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Jean">
+                            </div>
+                            <h3>Jean Holgado</h3>
+                            <p style="color: var(--color-text-secondary);">$15.999</p>
+                        </div>
+                        
+                        <div class="spa-product-card fade-in" onclick="window.location.href='producto.html?id=6'">
+                            <div class="spa-product-image">
+                                <img src="https://images.unsplash.com/photo-1524592001865-b32997a13083?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Campera">
+                            </div>
+                            <h3>Campera Jean</h3>
+                            <p style="color: var(--color-text-secondary);">$22.999</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA ABOUT -->
+        <div id="about" class="page">
+            <div class="spa-about">
+                <div class="container">
+                    <h2 class="spa-about-title fade-in">Sobre Bara & Co</h2>
+                    <p class="spa-about-text fade-in">
+                        Nacimos en Jesús María, Córdoba, con la idea de crear ropa que te acompañe 
+                        en tu día a día. Diseño simple, materiales de calidad, producción local.
+                        <br><br>
+                        Creemos en la moda consciente, en prendas que duran y en historias que merecen 
+                        ser contadas. Cada colección está inspirada en nuestra tierra y en la gente 
+                        que la habita.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA CONTACT -->
+        <div id="contact" class="page">
+            <div class="spa-contact">
+                <div class="container">
+                    <h2 class="spa-contact-title fade-in">Contacto</h2>
+                    <form class="fade-in">
+                        <div class="spa-form-group">
+                            <input type="text" placeholder="Nombre" required>
+                        </div>
+                        <div class="spa-form-group">
+                            <input type="email" placeholder="Email" required>
+                        </div>
+                        <div class="spa-form-group">
+                            <textarea rows="5" placeholder="Mensaje" required></textarea>
+                        </div>
+                        <button type="submit" class="spa-submit-btn">Enviar mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Bara & Co</div>
+                    <p class="footer-text">Indumentaria urbana con personalidad. Diseño y confort para tu día a día.</p>
+                    <div class="social-icons">
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-facebook-f"></i>
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-title">Categorías</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="navegarA('shop'); return false;">Mujer</a></li>
+                        <li><a href="#" onclick="navegarA('shop'); return false;">Hombre</a></li>
+                        <li><a href="#" onclick="navegarA('shop'); return false;">Accesorios</a></li>
+                        <li><a href="#" onclick="navegarA('shop'); return false;">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Ayuda</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Cambios y devoluciones</a></li>
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#" onclick="navegarA('contact'); return false;">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p class="footer-text">Sumate. 10% OFF en tu primera compra.</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Tu email">
+                        <button><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="legal-info">
+                    <span>© 2026 Bara & Co</span>
+                    <span>CUIT 30-71234567-8</span>
+                    <span>Ing. Olmos 139 – Jesús María</span>
+                </div>
+                <div class="legal-info">
+                    <span>Términos y condiciones</span>
+                    <span>Política de privacidad</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CARRITO FLOTANTE (GLOBAL) -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script>
+        // ---------- SISTEMA DE TRANSICIONES SPA ----------
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const transition = document.getElementById('pageTransition');
+        let currentPage = 'home';
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function navegarA(pageId) {
+            if (pageId === currentPage) return;
+
+            // ACTIVAR TRANSICIÓN
+            transition.classList.add('active');
+            await sleep(300);
+
+            // CAMBIAR PÁGINA
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+
+            // ACTUALIZAR NAV LINKS
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.page === pageId) {
+                    link.classList.add('active');
+                }
+            });
+
+            // SCROLL TOP
+            window.scrollTo(0, 0);
+
+            // DESACTIVAR TRANSICIÓN
+            await sleep(200);
+            transition.classList.remove('active');
+
+            // ACTUALIZAR URL
+            history.pushState({ page: pageId }, '', `#${pageId}`);
+        }
+
+        // MANEJAR HISTORIAL
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.page) {
+                navegarA(e.state.page);
+            }
+        });
+
+        // INICIALIZAR DESDE URL
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash) {
+                const page = window.location.hash.replace('#', '');
+                if (document.getElementById(page)) {
+                    setTimeout(() => {
+                        navegarA(page);
+                    }, 100);
+                }
+            }
+        });
+
+        // ANIMAR ELEMENTOS DE LA PÁGINA ACTIVA
+        function animarElementos() {
+            const elements = document.querySelectorAll('.page.active .fade-in');
+            elements.forEach((el, index) => {
+                el.style.animation = 'none';
+                el.offsetHeight;
+                el.style.animation = `fadeSlideUp 0.8s forwards ${index * 0.1}s`;
+            });
+        }
+
+        // MENÚ MOBILE
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>

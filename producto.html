@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Remera Oversize</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        /* Estilos específicos para página de producto */
+        .product-page {
+            padding: 120px 0 80px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .gallery-container {
+            position: sticky;
+            top: 120px;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: var(--color-bg-secondary);
+            cursor: crosshair;
+            position: relative;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .main-image.zoomed img {
+            transform: scale(2);
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .thumbnail {
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border-color: var(--color-accent);
+        }
+
+        .thumbnail:hover {
+            opacity: 1;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding-right: 20px;
+        }
+
+        .product-category {
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .product-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--color-text-primary);
+        }
+
+        .product-price s {
+            color: #999;
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .product-description {
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .size-selector,
+        .color-selector {
+            margin-bottom: 2rem;
+        }
+
+        .size-label,
+        .color-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .size-options,
+        .color-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .size-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            background: transparent;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .size-btn:hover,
+        .size-btn.active {
+            background: var(--color-text-primary);
+            color: white;
+            border-color: var(--color-text-primary);
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .color-btn.active {
+            border-color: var(--color-text-primary);
+            transform: scale(1.1);
+        }
+
+        .color-btn.black { background: #000; }
+        .color-btn.white { background: #fff; border: 1px solid #ddd; }
+        .color-btn.gray { background: #808080; }
+        .color-btn.olive { background: #7C8C7D; }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 18px 0;
+            background: var(--color-text-primary);
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-to-cart:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .add-to-cart i {
+            transition: transform 0.3s ease;
+        }
+
+        .add-to-cart:hover i {
+            transform: translateX(5px);
+        }
+
+        .payment-methods {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        .payment-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .payment-icons i {
+            font-size: 2rem;
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 1024px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .gallery-container {
+                position: relative;
+                top: 0;
+            }
+            
+            .main-image {
+                height: 500px;
+            }
+            
+            .product-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-page {
+                padding: 100px 0 40px;
+            }
+            
+            .main-image {
+                height: 400px;
+            }
+            
+            .thumbnail-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .product-title {
+                font-size: 2rem;
+            }
+            
+            .product-price {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursor Personalizado -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Inicio</a></li>
+                    <li><a href="tienda.html" class="nav-link active">Tienda</a></li>
+                    <li><a href="lookbook.html" class="nav-link">Lookbook</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="#"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Página de Producto -->
+    <main class="product-page">
+        <div class="container">
+            <div class="product-grid">
+                <!-- GALERÍA INTERACTIVA -->
+                <div class="gallery-container">
+                    <div class="main-image" id="mainImage">
+                        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Remera Oversize" id="mainImg">
+                    </div>
+                    <div class="thumbnail-grid">
+                        <div class="thumbnail active" onclick="cambiarImagen(this, 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')">
+                            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Thumb 1">
+                        </div>
+                        <div class="thumbnail" onclick="cambiarImagen(this, 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')">
+                            <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Thumb 2">
+                        </div>
+                        <div class="thumbnail" onclick="cambiarImagen(this, 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')">
+                            <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Thumb 3">
+                        </div>
+                        <div class="thumbnail" onclick="cambiarImagen(this, 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')">
+                            <img src="https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Thumb 4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFO PRODUCTO -->
+                <div class="product-info">
+                    <span class="product-category">NUEVA COLECCIÓN</span>
+                    <h1 class="product-title">Remera Oversize</h1>
+                    <div class="product-price">$7.999</div>
+                    
+                    <p class="product-description">
+                        Corte holgado, tela de algodón peinado de 220g. 
+                        Diseño atemporal que combina con todo. 
+                        Producida localmente con materiales sustentables.
+                    </p>
+
+                    <!-- SELECTOR TALLE -->
+                    <div class="size-selector">
+                        <span class="size-label">TALLE</span>
+                        <div class="size-options">
+                            <button class="size-btn" onclick="seleccionarTalle(this)">S</button>
+                            <button class="size-btn active" onclick="seleccionarTalle(this)">M</button>
+                            <button class="size-btn" onclick="seleccionarTalle(this)">L</button>
+                            <button class="size-btn" onclick="seleccionarTalle(this)">XL</button>
+                        </div>
+                    </div>
+
+                    <!-- SELECTOR COLOR -->
+                    <div class="color-selector">
+                        <span class="color-label">COLOR</span>
+                        <div class="color-options">
+                            <button class="color-btn black active" onclick="seleccionarColor(this, 'Negro')"></button>
+                            <button class="color-btn white" onclick="seleccionarColor(this, 'Blanco')"></button>
+                            <button class="color-btn gray" onclick="seleccionarColor(this, 'Gris')"></button>
+                            <button class="color-btn olive" onclick="seleccionarColor(this, 'Oliva')"></button>
+                        </div>
+                    </div>
+
+                    <!-- AGREGAR AL CARRITO -->
+                    <button class="add-to-cart" onclick="agregarAlCarritoDesdeProducto()">
+                        <span>Agregar al carrito</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <!-- MÉTODOS DE PAGO -->
+                    <div class="payment-methods">
+                        <span class="size-label">MEDIOS DE PAGO</span>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <i class="fab fa-cc-amex"></i>
+                            <i class="fas fa-credit-card"></i>
+                            <i class="fab fa-mercadopago"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Bara & Co</div>
+                    <p class="footer-text">Indumentaria urbana con personalidad. Diseño y confort para tu día a día.</p>
+                    <div class="social-icons">
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-facebook-f"></i>
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-title">Categorías</h4>
+                    <ul class="footer-links">
+                        <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
+                        <li><a href="tienda.html?categoria=hombre">Hombre</a></li>
+                        <li><a href="tienda.html?categoria=accesorios">Accesorios</a></li>
+                        <li><a href="tienda.html?categoria=sale">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Ayuda</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Cambios y devoluciones</a></li>
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p class="footer-text">Sumate. 10% OFF en tu primera compra.</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Tu email">
+                        <button><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="legal-info">
+                    <span>© 2026 Bara & Co</span>
+                    <span>CUIT 30-71234567-8</span>
+                    <span>Ing. Olmos 139 – Jesús María</span>
+                </div>
+                <div class="legal-info">
+                    <span>Términos y condiciones</span>
+                    <span>Política de privacidad</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CARRITO FLOTANTE (GLOBAL) -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script>
+        // ---------- GALERÍA INTERACTIVA ----------
+        function cambiarImagen(thumbnail, src) {
+            document.getElementById('mainImg').src = src;
+            
+            document.querySelectorAll('.thumbnail').forEach(t => {
+                t.classList.remove('active');
+            });
+            
+            thumbnail.classList.add('active');
+        }
+
+        // ---------- ZOOM AL HACER CLICK ----------
+        const mainImage = document.querySelector('.main-image');
+        mainImage.addEventListener('click', function() {
+            this.classList.toggle('zoomed');
+        });
+
+        // ---------- SELECTOR DE TALLE ----------
+        window.seleccionarTalle = function(btn) {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+
+        // ---------- SELECTOR DE COLOR ----------
+        window.seleccionarColor = function(btn, color) {
+            document.querySelectorAll('.color-btn').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Cambiar imagen según color
+            const mainImg = document.getElementById('mainImg');
+            if (color === 'Negro') {
+                mainImg.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            } else if (color === 'Blanco') {
+                mainImg.src = 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            } else if (color === 'Gris') {
+                mainImg.src = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            } else {
+                mainImg.src = 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            }
+        };
+
+        // ---------- AGREGAR AL CARRITO ----------
+        window.agregarAlCarritoDesdeProducto = function() {
+            const nombre = document.querySelector('.product-title').textContent;
+            const precioTexto = document.querySelector('.product-price').textContent;
+            const precio = parseInt(precioTexto.replace(/[^0-9]/g, ''));
+            const talle = document.querySelector('.size-btn.active').textContent;
+            const color = document.querySelector('.color-btn.active').classList[1] || 'Negro';
+            const imagen = document.getElementById('mainImg').src;
+            
+            agregarAlCarrito(nombre, precio, talle, color, imagen);
+            
+            // Animación del botón
+            const btn = document.querySelector('.add-to-cart i');
+            btn.style.transform = 'translateX(10px)';
+            setTimeout(() => {
+                btn.style.transform = 'translateX(0)';
+            }, 200);
+        };
+
+        // Simular carga de producto según ID de URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            // Acá cargarías los datos del producto desde una base de datos
+            // Por ahora dejamos el producto por defecto
+        });
+    </script>
+</body>
+</html>

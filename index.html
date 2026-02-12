@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Bara & Co · Indumentaria Urbana</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        /* Estilos específicos para el hero cinematográfico */
+        .hero-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .hero-sticky {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .hero-panel-left,
+        .hero-panel-right {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100vh;
+            overflow: hidden;
+            will-change: transform;
+            transition: transform 0.1s linear;
+        }
+
+        .hero-panel-left {
+            left: 0;
+            background: linear-gradient(90deg, #000 0%, transparent 100%);
+        }
+
+        .hero-panel-right {
+            right: 0;
+            background: linear-gradient(270deg, #000 0%, transparent 100%);
+        }
+
+        .hero-panel-left img,
+        .hero-panel-right img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: transform;
+        }
+
+        .hero-panel-left img {
+            left: 0;
+            object-position: 70% center;
+        }
+
+        .hero-panel-right img {
+            right: 0;
+            object-position: 30% center;
+        }
+
+        .hero-panel-left:hover img,
+        .hero-panel-right:hover img {
+            transform: scale(1.05);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            text-align: center;
+            color: white;
+            width: 100%;
+            max-width: 1000px;
+            padding: 0 2rem;
+            pointer-events: none;
+        }
+
+        .hero-pre-title {
+            font-size: 0.9rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUpReveal 1s forwards 0.3s;
+            font-weight: 300;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 6.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUpReveal 1s forwards 0.6s;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title span {
+            color: var(--color-accent);
+            font-style: italic;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUpReveal 1s forwards 0.9s;
+            color: rgba(255,255,255,0.95);
+        }
+
+        .hero-btn {
+            display: inline-block;
+            padding: 18px 54px;
+            background: white;
+            color: var(--color-text-primary);
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUpReveal 1s forwards 1.2s;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+            text-decoration: none;
+        }
+
+        .hero-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--color-accent);
+            transition: left 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+            z-index: -1;
+        }
+
+        .hero-btn:hover {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.3);
+        }
+
+        .hero-btn:hover::before {
+            left: 0;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1.8s;
+            cursor: pointer;
+        }
+
+        .scroll-line {
+            width: 2px;
+            height: 60px;
+            background: rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            animation: scrollLine 2s infinite;
+        }
+
+        @keyframes scrollLine {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        .scroll-indicator span {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        @keyframes fadeUpReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Featured Products */
+        .featured-section {
+            padding: var(--spacing-xl) 0;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .featured-card {
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        .featured-card:nth-child(1) { animation-delay: 0.2s; }
+        .featured-card:nth-child(2) { animation-delay: 0.4s; }
+        .featured-card:nth-child(3) { animation-delay: 0.6s; }
+
+        .featured-image {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            margin-bottom: var(--spacing-sm);
+            position: relative;
+        }
+
+        .featured-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s;
+        }
+
+        .featured-card:hover .featured-image img {
+            transform: scale(1.05);
+        }
+
+        .featured-info {
+            text-align: center;
+        }
+
+        .featured-title {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-price {
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 5rem;
+            }
+            
+            .featured-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .hero-pre-title {
+                font-size: 0.8rem;
+            }
+            
+            .hero-panel-left,
+            .hero-panel-right {
+                width: 100%;
+                height: 50%;
+            }
+            
+            .hero-panel-left {
+                top: 0;
+            }
+            
+            .hero-panel-right {
+                top: 50%;
+            }
+            
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-btn {
+                padding: 16px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursor Personalizado -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link active">Inicio</a></li>
+                    <li><a href="tienda.html" class="nav-link">Tienda</a></li>
+                    <li><a href="lookbook.html" class="nav-link">Lookbook</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="tienda.html"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Cinematográfico -->
+    <div class="hero-container">
+        <div class="hero-sticky" id="heroSticky">
+            <!-- Panel izquierdo -->
+            <div class="hero-panel-left" id="panelLeft">
+                <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Bara & Co mujer">
+            </div>
+            <!-- Panel derecho -->
+            <div class="hero-panel-right" id="panelRight">
+                <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Bara & Co hombre">
+            </div>
+            
+            <!-- Overlay -->
+            <div class="hero-overlay"></div>
+            
+            <!-- Contenido central -->
+            <div class="hero-content">
+                <div class="hero-pre-title">Colección Otoño 2026</div>
+                <h1 class="hero-title">Armá tu <span>estilo</span></h1>
+                <p class="hero-subtitle">Esencia urbana. Confort atemporal.</p>
+                <a href="tienda.html" class="hero-btn">Descubrir colección</a>
+            </div>
+            
+            <!-- Scroll indicator -->
+            <div class="scroll-indicator" onclick="window.scrollTo({top: window.innerHeight, behavior: 'smooth'})">
+                <span>Descubrir</span>
+                <div class="scroll-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos Destacados -->
+    <section class="featured-section">
+        <div class="container">
+            <h2 class="section-title text-center" style="font-size: 2.8rem; margin-bottom: 1rem;">Novedades</h2>
+            <p class="text-center" style="color: var(--color-text-secondary); margin-bottom: 3rem;">Lo más nuevo de la temporada</p>
+            
+            <div class="featured-grid">
+                <div class="featured-card" onclick="window.location.href='producto.html?id=1'">
+                    <div class="featured-image">
+                        <span class="badge" style="position: absolute; top: 15px; right: 15px; background: var(--color-text-primary); color: white; padding: 4px 12px; font-size: 0.75rem;">Nuevo</span>
+                        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Remera Oversize">
+                    </div>
+                    <div class="featured-info">
+                        <h3 class="featured-title">Remera Oversize</h3>
+                        <p class="featured-price">$7.999</p>
+                    </div>
+                </div>
+                
+                <div class="featured-card" onclick="window.location.href='producto.html?id=2'">
+                    <div class="featured-image">
+                        <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Jean Holgado">
+                    </div>
+                    <div class="featured-info">
+                        <h3 class="featured-title">Jean Holgado</h3>
+                        <p class="featured-price">$15.999</p>
+                    </div>
+                </div>
+                
+                <div class="featured-card" onclick="window.location.href='producto.html?id=3'">
+                    <div class="featured-image">
+                        <span class="badge" style="position: absolute; top: 15px; right: 15px; background: var(--color-accent); color: white; padding: 4px 12px; font-size: 0.75rem;">-20%</span>
+                        <img src="https://images.unsplash.com/photo-1524592001865-b32997a13083?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Campera Jean">
+                    </div>
+                    <div class="featured-info">
+                        <h3 class="featured-title">Campera Jean</h3>
+                        <p class="featured-price"><s style="color: #999; margin-right: 5px;">$28.999</s> $22.999</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center" style="margin-top: 3rem;">
+                <a href="tienda.html" class="btn">Ver todos los productos</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Bara & Co</div>
+                    <p class="footer-text">Indumentaria urbana con personalidad. Diseño y confort para tu día a día.</p>
+                    <div class="social-icons">
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-facebook-f"></i>
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-title">Categorías</h4>
+                    <ul class="footer-links">
+                        <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
+                        <li><a href="tienda.html?categoria=hombre">Hombre</a></li>
+                        <li><a href="tienda.html?categoria=accesorios">Accesorios</a></li>
+                        <li><a href="tienda.html?categoria=sale">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Ayuda</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Cambios y devoluciones</a></li>
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p class="footer-text">Sumate. 10% OFF en tu primera compra.</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Tu email">
+                        <button><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="legal-info">
+                    <span>© 2026 Bara & Co</span>
+                    <span>CUIT 30-71234567-8</span>
+                    <span>Ing. Olmos 139 – Jesús María</span>
+                </div>
+                <div class="legal-info">
+                    <span>Términos y condiciones</span>
+                    <span>Política de privacidad</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CARRITO FLOTANTE (GLOBAL) -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script>
+        // Hero cinematográfico - Efecto puertas corredizas
+        document.addEventListener('DOMContentLoaded', function() {
+            const panelLeft = document.getElementById('panelLeft');
+            const panelRight = document.getElementById('panelRight');
+            const heroSticky = document.getElementById('heroSticky');
+            
+            const MAX_TRANSLATE = 48;
+            
+            function updateHeroPanels() {
+                const rect = heroSticky.getBoundingClientRect();
+                let progress = -rect.top / (window.innerHeight * 0.8);
+                progress = Math.max(0, Math.min(1, progress));
+                
+                const easedProgress = progress < 0.5 
+                    ? 2 * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                
+                const leftTranslate = - (easedProgress * MAX_TRANSLATE);
+                const rightTranslate = easedProgress * MAX_TRANSLATE;
+                
+                if (panelLeft) panelLeft.style.transform = `translateX(${leftTranslate}%)`;
+                if (panelRight) panelRight.style.transform = `translateX(${rightTranslate}%)`;
+                
+                const heroContent = document.querySelector('.hero-content');
+                const scrollIndicator = document.querySelector('.scroll-indicator');
+                
+                if (heroContent) {
+                    heroContent.style.opacity = Math.max(0, 1 - progress * 1.2);
+                }
+                if (scrollIndicator) {
+                    scrollIndicator.style.opacity = Math.max(0, 1 - progress * 1.5);
+                }
+            }
+            
+            window.addEventListener('scroll', updateHeroPanels);
+            window.addEventListener('resize', updateHeroPanels);
+            updateHeroPanels();
+        });
+    </script>
+</body>
+</html>

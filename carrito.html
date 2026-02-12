@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Carrito Flotante</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg: #FFFFFF;
+            --color-text-primary: #0A0A0A;
+            --color-text-secondary: #6B6B6B;
+            --color-accent: #7C8C7D;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--color-bg);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+        }
+
+        /* ---------- CARRITO FLOTANTE ---------- */
+        .cart-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: var(--color-text-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cart-icon:hover {
+            transform: scale(1.1);
+            background: var(--color-accent);
+        }
+
+        .cart-icon i {
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--color-accent);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 2px solid white;
+        }
+
+        /* PANEL DEL CARRITO */
+        .cart-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 450px;
+            height: 100vh;
+            background: white;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.05);
+            z-index: 1001;
+            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+
+        .cart-panel.open {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-title {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .close-cart {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close-cart:hover {
+            transform: rotate(90deg);
+        }
+
+        /* ITEMS DEL CARRITO */
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 10px;
+            background: #fafafa;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .item-details p {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--color-text-primary);
+            color: white;
+            border-color: var(--color-text-primary);
+        }
+
+        .remove-item {
+            color: #999;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .remove-item:hover {
+            color: #ff4444;
+        }
+
+        /* SUBTOTAL Y CHECKOUT */
+        .cart-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .subtotal {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--color-text-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .checkout-btn:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .checkout-btn i {
+            transition: transform 0.3s;
+        }
+
+        .checkout-btn:hover i {
+            transform: translateX(5px);
+        }
+
+        /* OVERLAY */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* MICROINTERACCIÓN AGREGAR */
+        .cart-notification {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            background: var(--color-text-primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1002;
+        }
+
+        .cart-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .cart-notification i {
+            color: var(--color-accent);
+        }
+
+        /* PRODUCTOS DE EJEMPLO */
+        .products-section {
+            padding: 100px 50px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            cursor: pointer;
+        }
+
+        .product-image {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--color-text-primary);
+            color: var(--color-text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            background: var(--color-text-primary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .cart-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .products-section {
+                grid-template-columns: 1fr;
+                padding: 50px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- CARRITO FLOTANTE -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count" id="cartCount">3</span>
+    </div>
+
+    <!-- NOTIFICACIÓN AGREGAR -->
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado al carrito</span>
+    </div>
+
+    <!-- PANEL CARRITO -->
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+            <!-- Item 1 -->
+            <div class="cart-item" id="item1">
+                <div class="item-image">
+                    <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Producto">
+                </div>
+                <div class="item-details">
+                    <h4>Remera Oversize</h4>
+                    <p>Negro / S</p>
+                    <span class="item-price">$7.999</span>
+                </div>
+                <div class="item-actions">
+                    <div class="item-quantity">
+                        <button class="qty-btn" onclick="updateQuantity(this, -1)">-</button>
+                        <span class="quantity">1</span>
+                        <button class="qty-btn" onclick="updateQuantity(this, 1)">+</button>
+                    </div>
+                    <span class="remove-item" onclick="removeItem(this)">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </span>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="cart-item" id="item2">
+                <div class="item-image">
+                    <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Producto">
+                </div>
+                <div class="item-details">
+                    <h4>Jean Holgado</h4>
+                    <p>Azul / 32</p>
+                    <span class="item-price">$15.999</span>
+                </div>
+                <div class="item-actions">
+                    <div class="item-quantity">
+                        <button class="qty-btn" onclick="updateQuantity(this, -1)">-</button>
+                        <span class="quantity">1</span>
+                        <button class="qty-btn" onclick="updateQuantity(this, 1)">+</button>
+                    </div>
+                    <span class="remove-item" onclick="removeItem(this)">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </span>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="cart-item" id="item3">
+                <div class="item-image">
+                    <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Producto">
+                </div>
+                <div class="item-details">
+                    <h4>Colgante Luna</h4>
+                    <p>Plata</p>
+                    <span class="item-price">$5.949</span>
+                </div>
+                <div class="item-actions">
+                    <div class="item-quantity">
+                        <button class="qty-btn" onclick="updateQuantity(this, -1)">-</button>
+                        <span class="quantity">1</span>
+                        <button class="qty-btn" onclick="updateQuantity(this, 1)">+</button>
+                    </div>
+                    <span class="remove-item" onclick="removeItem(this)">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$29.947</span>
+            </div>
+            <button class="checkout-btn">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- PRODUCTOS DE EJEMPLO -->
+    <section class="products-section">
+        <div class="product-card">
+            <div class="product-image">
+                <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Remera">
+            </div>
+            <div class="product-info">
+                <h3>Remera Oversize</h3>
+                <p>$7.999</p>
+                <button class="add-btn" onclick="addToCart('Remera Oversize', 7999, this)">
+                    <i class="fas fa-shopping-bag"></i> Agregar
+                </button>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-image">
+                <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Jean">
+            </div>
+            <div class="product-info">
+                <h3>Jean Holgado</h3>
+                <p>$15.999</p>
+                <button class="add-btn" onclick="addToCart('Jean Holgado', 15999, this)">
+                    <i class="fas fa-shopping-bag"></i> Agregar
+                </button>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-image">
+                <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Colgante">
+            </div>
+            <div class="product-info">
+                <h3>Colgante Luna</h3>
+                <p>$5.949</p>
+                <button class="add-btn" onclick="addToCart('Colgante Luna', 5949, this)">
+                    <i class="fas fa-shopping-bag"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ---------- TOGGLE CARRITO ----------
+        function toggleCart() {
+            const cartPanel = document.getElementById('cartPanel');
+            const overlay = document.getElementById('overlay');
+            cartPanel.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // ---------- ACTUALIZAR CANTIDAD ----------
+        function updateQuantity(btn, change) {
+            const item = btn.closest('.cart-item');
+            const quantitySpan = item.querySelector('.quantity');
+            let quantity = parseInt(quantitySpan.textContent);
+            
+            if (quantity + change > 0) {
+                quantity += change;
+                quantitySpan.textContent = quantity;
+                updateSubtotal();
+                
+                // Animación
+                btn.style.transform = 'scale(0.9)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 100);
+            }
+        }
+
+        // ---------- ELIMINAR ITEM ----------
+        function removeItem(element) {
+            const item = element.closest('.cart-item');
+            item.style.animation = 'slideIn 0.3s reverse';
+            
+            setTimeout(() => {
+                item.remove();
+                updateSubtotal();
+                updateCartCount();
+                
+                // Mostrar notificación
+                showNotification('Producto eliminado');
+            }, 300);
+        }
+
+        // ---------- AGREGAR AL CARRITO ----------
+        function addToCart(name, price, btn) {
+            // Animación botón
+            btn.innerHTML = '<i class="fas fa-check"></i> Agregado';
+            btn.style.background = 'var(--color-accent)';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Agregar';
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--color-text-primary)';
+            }, 1500);
+            
+            // Mostrar notificación
+            showNotification('Producto agregado');
+            
+            // Incrementar contador
+            const cartCount = document.getElementById('cartCount');
+            cartCount.textContent = parseInt(cartCount.textContent) + 1;
+            
+            // Animación carrito
+            const cartIcon = document.querySelector('.cart-icon');
+            cartIcon.style.transform = 'scale(1.2)';
+            setTimeout(() => cartIcon.style.transform = 'scale(1)', 200);
+        }
+
+        // ---------- NOTIFICACIÓN ----------
+        function showNotification(message) {
+            const notification = document.getElementById('cartNotification');
+            notification.querySelector('span').textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // ---------- ACTUALIZAR SUBTOTAL ----------
+        function updateSubtotal() {
+            const items = document.querySelectorAll('.cart-item');
+            let total = 0;
+            
+            items.forEach(item => {
+                const price = parseInt(item.querySelector('.item-price').textContent.replace('$', '').replace('.', ''));
+                const quantity = parseInt(item.querySelector('.quantity').textContent);
+                total += price * quantity;
+            });
+            
+            document.getElementById('subtotal').textContent = `$${total.toLocaleString('es-AR')}`;
+        }
+
+        // ---------- ACTUALIZAR CONTADOR ----------
+        function updateCartCount() {
+            const items = document.querySelectorAll('.cart-item');
+            document.getElementById('cartCount').textContent = items.length;
+        }
+
+        // ---------- CERRAR CON ESC ----------
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const cartPanel = document.getElementById('cartPanel');
+                if (cartPanel.classList.contains('open')) {
+                    toggleCart();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
