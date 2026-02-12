@@ -1,1 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Checkout</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        .checkout-page {
+            padding: 120px 0 80px;
+            background: #fafafa;
+        }
 
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+        }
+
+        .checkout-section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .checkout-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* Métodos de pago */
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .payment-method-card {
+            border: 1px solid #eee;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--color-accent);
+        }
+
+        .payment-method-card.active {
+            border: 2px solid var(--color-accent);
+            background: rgba(124, 140, 125, 0.05);
+        }
+
+        .payment-method-card i {
+            font-size: 2rem;
+            color: var(--color-text-primary);
+            margin-bottom: 10px;
+        }
+
+        .payment-method-card span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Formulario */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            font-family: var(--font-sans);
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        /* Cupón */
+        .coupon-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .coupon-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .coupon-btn {
+            padding: 12px 25px;
+            background: transparent;
+            border: 1px solid var(--color-text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .coupon-btn:hover {
+            background: var(--color-text-primary);
+            color: white;
+        }
+
+        /* Resumen de compra */
+        .order-summary {
+            background: white;
+            padding: 30px;
+            position: sticky;
+            top: 120px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .summary-items {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .summary-item-image {
+            width: 70px;
+            height: 70px;
+            overflow: hidden;
+        }
+
+        .summary-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .summary-item-details {
+            flex: 1;
+        }
+
+        .summary-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .summary-item-meta {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .summary-item-price {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .checkout-btn-final {
+            width: 100%;
+            padding: 18px;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+            font-size: 1.1rem;
+        }
+
+        .checkout-btn-final:hover {
+            background: var(--color-text-primary);
+            transform: translateY(-2px);
+        }
+
+        .login-required {
+            text-align: center;
+            padding: 40px;
+            background: #f8f8f8;
+        }
+
+        .login-required i {
+            font-size: 3rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .login-btn-checkout {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--color-text-primary);
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .login-btn-checkout:hover {
+            background: var(--color-accent);
+        }
+
+        @media (max-width: 1024px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-summary {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-methods-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkout-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursor Personalizado -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Inicio</a></li>
+                    <li><a href="tienda.html" class="nav-link">Tienda</a></li>
+                    <li><a href="lookbook.html" class="nav-link">Lookbook</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="login.html"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Checkout Page -->
+    <div class="checkout-page">
+        <div class="container">
+            <div id="checkoutContent"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Bara & Co</div>
+                    <p class="footer-text">Indumentaria urbana con personalidad. Diseño y confort para tu día a día.</p>
+                    <div class="social-icons">
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-facebook-f"></i>
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-title">Categorías</h4>
+                    <ul class="footer-links">
+                        <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
+                        <li><a href="tienda.html?categoria=hombre">Hombre</a></li>
+                        <li><a href="tienda.html?categoria=accesorios">Accesorios</a></li>
+                        <li><a href="tienda.html?categoria=sale">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Ayuda</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Cambios y devoluciones</a></li>
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p class="footer-text">Sumate. 10% OFF en tu primera compra.</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Tu email">
+                        <button><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="legal-info">
+                    <span>© 2026 Bara & Co</span>
+                    <span>CUIT 30-71234567-8</span>
+                    <span>Ing. Olmos 139 – Jesús María</span>
+                </div>
+                <div class="legal-info">
+                    <span>Términos y condiciones</span>
+                    <span>Política de privacidad</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CARRITO FLOTANTE (GLOBAL) -->
+    <div class="cart-icon" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </div>
+
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span>Producto agregado</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h2 class="cart-title">Carrito</h2>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="subtotal">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                <span>Finalizar compra</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/mercadopago.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkoutContent = document.getElementById('checkoutContent');
+            
+            if (!estaLogueado()) {
+                checkoutContent.innerHTML = `
+                    <div class="login-required">
+                        <i class="fas fa-user-lock"></i>
+                        <h2 style="font-family: var(--font-serif); margin-bottom: 10px;">Iniciá sesión para continuar</h2>
+                        <p style="color: var(--color-text-secondary); margin-bottom: 20px;">Necesitás estar logueado para realizar tu compra</p>
+                        <a href="login.html?redirect=checkout.html" class="login-btn-checkout">INICIAR SESIÓN</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const carrito = JSON.parse(localStorage.getItem('baraCarrito')) || [];
+            
+            if (carrito.length === 0) {
+                checkoutContent.innerHTML = `
+                    <div class="login-required">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h2 style="font-family: var(--font-serif); margin-bottom: 10px;">Tu carrito está vacío</h2>
+                        <p style="color: var(--color-text-secondary); margin-bottom: 20px;">Agregá productos para continuar</p>
+                        <a href="tienda.html" class="login-btn-checkout">IR A LA TIENDA</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            renderizarCheckout();
+        });
+
+        function renderizarCheckout() {
+            const carrito = JSON.parse(localStorage.getItem('baraCarrito')) || [];
+            const usuario = obtenerUsuarioActual();
+            
+            let itemsHTML = '';
+            let subtotal = 0;
+            
+            carrito.forEach(item => {
+                subtotal += item.precio * item.cantidad;
+                itemsHTML += `
+                    <div class="summary-item">
+                        <div class="summary-item-image">
+                            <img src="${item.imagen}" alt="${item.nombre}">
+                        </div>
+                        <div class="summary-item-details">
+                            <div class="summary-item-title">${item.nombre}</div>
+                            <div class="summary-item-meta">${item.talle} / ${item.color} x${item.cantidad}</div>
+                            <div class="summary-item-price">$${(item.precio * item.cantidad).toLocaleString('es-AR')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const envio = 1500; // Simulación
+            const total = subtotal + envio;
+
+            const checkoutHTML = `
+                <div class="checkout-grid">
+                    <div>
+                        <div class="checkout-section">
+                            <h2 class="checkout-title">Método de pago</h2>
+                            <div class="payment-methods-grid">
+                                <div class="payment-method-card active" onclick="seleccionarMetodoPago(this, 'mercadopago')">
+                                    <i class="fab fa-mercadopago"></i>
+                                    <span>MercadoPago</span>
+                                </div>
+                                <div class="payment-method-card" onclick="seleccionarMetodoPago(this, 'visa')">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <span>Visa</span>
+                                </div>
+                                <div class="payment-method-card" onclick="seleccionarMetodoPago(this, 'mastercard')">
+                                    <i class="fab fa-cc-mastercard"></i>
+                                    <span>Mastercard</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout-section">
+                            <h2 class="checkout-title">Datos de envío</h2>
+                            <form id="shippingForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Nombre completo</label>
+                                        <input type="text" id="shippingName" value="${usuario?.nombre || ''}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="shippingEmail" value="${usuario?.email || ''}" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Dirección</label>
+                                    <input type="text" id="shippingAddress" placeholder="Calle y número" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ciudad</label>
+                                        <input type="text" id="shippingCity" placeholder="Ciudad" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Código Postal</label>
+                                        <input type="text" id="shippingZip" placeholder="C.P." required onchange="actualizarEnvio()">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="tel" id="shippingPhone" placeholder="Ej: 351 1234567" required>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="checkout-section">
+                            <h2 class="checkout-title">¿Tenés un cupón?</h2>
+                            <div class="coupon-area">
+                                <input type="text" class="coupon-input" id="couponCode" placeholder="Ingresá tu código">
+                                <button class="coupon-btn" onclick="aplicarCuponCheckout()">APLICAR</button>
+                            </div>
+                            <div id="couponMessage" style="margin-top: 10px; font-size: 0.9rem;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="order-summary">
+                            <h2 class="checkout-title">Tu compra</h2>
+                            <div class="summary-items">
+                                ${itemsHTML}
+                            </div>
+                            
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span>$${subtotal.toLocaleString('es-AR')}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Envío</span>
+                                <span id="shippingCost">$${envio.toLocaleString('es-AR')}</span>
+                            </div>
+                            <div class="summary-row" id="discountRow" style="display: none; color: #4CAF50;">
+                                <span>Descuento</span>
+                                <span id="discountAmount">-$0</span>
+                            </div>
+                            
+                            <div class="summary-total">
+                                <span>TOTAL</span>
+                                <span id="totalAmount">$${total.toLocaleString('es-AR')}</span>
+                            </div>
+                            
+                            <button class="checkout-btn-final" onclick="procesarPago()">
+                                <i class="fas fa-lock" style="margin-right: 10px;"></i>
+                                PAGAR $${total.toLocaleString('es-AR')}
+                            </button>
+                            
+                            <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #999;">
+                                <i class="fas fa-shield-alt"></i> Pago 100% seguro - Tus datos están protegidos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('checkoutContent').innerHTML = checkoutHTML;
+        }
+
+        window.seleccionarMetodoPago = function(element, metodo) {
+            document.querySelectorAll('.payment-method-card').forEach(el => {
+                el.classList.remove('active');
+            });
+            element.classList.add('active');
+            localStorage.setItem('baraMetodoPago', metodo);
+        };
+
+        window.actualizarEnvio = function() {
+            const zip = document.getElementById('shippingZip')?.value;
+            if (zip) {
+                const envio = calcularEnvio(zip);
+                document.getElementById('shippingCost').innerHTML = `$${envio.costo.toLocaleString('es-AR')}`;
+                actualizarTotal();
+            }
+        };
+
+        window.aplicarCuponCheckout = function() {
+            const codigo = document.getElementById('couponCode').value;
+            const cupon = aplicarCupon(codigo);
+            const messageEl = document.getElementById('couponMessage');
+            
+            if (cupon) {
+                messageEl.innerHTML = '<span style="color: #4CAF50;">✅ Cupón aplicado correctamente</span>';
+                document.getElementById('discountRow').style.display = 'flex';
+                
+                let descuento = 0;
+                const subtotal = calcularSubtotal();
+                
+                if (cupon.tipo === 'porcentaje') {
+                    descuento = subtotal * (cupon.valor / 100);
+                } else if (cupon.tipo === 'fijo') {
+                    descuento = cupon.valor;
+                } else if (cupon.tipo === 'envio_gratis') {
+                    document.getElementById('shippingCost').innerHTML = '$0';
+                }
+                
+                document.getElementById('discountAmount').innerHTML = `-$${descuento.toLocaleString('es-AR')}`;
+                localStorage.setItem('baraCupon', JSON.stringify({ codigo, descuento }));
+                actualizarTotal();
+            } else {
+                messageEl.innerHTML = '<span style="color: #ff4444;">❌ Código inválido</span>';
+            }
+        };
+
+        window.actualizarTotal = function() {
+            const carrito = JSON.parse(localStorage.getItem('baraCarrito')) || [];
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            
+            const shippingText = document.getElementById('shippingCost').innerHTML;
+            const envio = parseInt(shippingText.replace(/[^0-9]/g, ''));
+            
+            let descuento = 0;
+            const cupon = JSON.parse(localStorage.getItem('baraCupon'));
+            if (cupon) {
+                descuento = cupon.descuento || 0;
+            }
+            
+            const total = subtotal + envio - descuento;
+            document.getElementById('totalAmount').innerHTML = `$${total.toLocaleString('es-AR')}`;
+        };
+
+        window.procesarPago = function() {
+            const metodo = localStorage.getItem('baraMetodoPago') || 'mercadopago';
+            
+            if (metodo === 'mercadopago') {
+                iniciarCheckoutMercadoPago();
+            } else {
+                // Simular pago con tarjeta
+                mostrarNotificacion('🔒 Procesando pago...');
+                setTimeout(() => {
+                    procesarPagoExitoso('SIM-' + Date.now(), 'approved');
+                    window.location.href = 'checkout-success.html';
+                }, 2000);
+            }
+        };
+    </script>
+</body>
+</html>
