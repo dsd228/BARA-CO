@@ -1,1 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bara & Co · Panel Admin</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="css/global.css">
+    
+    <style>
+        .admin-page {
+            padding: 120px 0 80px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
 
+        .admin-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .admin-info h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .admin-info p {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .admin-menu {
+            list-style: none;
+        }
+
+        .admin-menu li {
+            margin-bottom: 10px;
+        }
+
+        .admin-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--color-text-primary);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .admin-menu a:hover,
+        .admin-menu a.active {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .admin-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .admin-main {
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--color-accent);
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Tablas */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge-admin {
+            background: var(--color-accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* Formulario productos */
+        .product-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-full {
+            grid-column: span 2;
+        }
+
+        .product-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .product-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .product-form input,
+        .product-form select,
+        .product-form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: var(--font-sans);
+        }
+
+        .product-form input:focus,
+        .product-form select:focus,
+        .product-form textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preview-remove:hover {
+            background: #ff4444;
+        }
+
+        .btn-primary {
+            background: var(--color-text-primary);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text-primary);
+            padding: 14px 28px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .admin-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-sidebar {
+                position: relative;
+                top: 0;
+                height: auto;
+            }
+            
+            .admin-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-full {
+                grid-column: span 1;
+            }
+            
+            .image-preview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">Bara & Co</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Inicio</a></li>
+                    <li><a href="tienda.html" class="nav-link">Tienda</a></li>
+                    <li><a href="lookbook.html" class="nav-link">Lookbook</a></li>
+                    <li><a href="admin.html" class="nav-link active admin-only">Admin</a></li>
+                </ul>
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+            <div class="header-icons">
+                <i class="fas fa-search"></i>
+                <a href="login.html"><i class="fas fa-user"></i></a>
+                <div class="cart-icon-wrapper" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Page -->
+    <div class="admin-page">
+        <div class="container">
+            <div id="adminContent"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/carrito.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin-productos.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Proteger ruta admin
+            if (!protegerRuta('admin')) {
+                return;
+            }
+            
+            renderizarAdmin();
+        });
+
+        function renderizarAdmin() {
+            const usuario = obtenerUsuarioActual();
+            const productos = JSON.parse(localStorage.getItem('baraProductos')) || [];
+            const usuarios = JSON.parse(localStorage.getItem('baraUsuarios')) || [];
+            const pedidos = usuarios.reduce((acc, u) => [...acc, ...(u.pedidos || [])], []);
+            
+            // Calcular estadísticas
+            const totalProductos = productos.length;
+            const totalUsuarios = usuarios.length;
+            const totalPedidos = pedidos.length;
+            const totalVentas = pedidos.reduce((sum, p) => sum + p.total, 0);
+
+            const adminHTML = `
+                <div class="admin-container">
+                    <!-- Sidebar -->
+                    <div class="admin-sidebar">
+                        <div class="admin-user">
+                            <div class="admin-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="admin-info">
+                                <h4>${usuario.nombre}</h4>
+                                <p>Administrador</p>
+                            </div>
+                        </div>
+                        
+                        <ul class="admin-menu">
+                            <li><a href="#" class="active" onclick="cambiarSeccion('dashboard'); return false;"><i class="fas fa-home"></i> Dashboard</a></li>
+                            <li><a href="#" onclick="cambiarSeccion('productos'); return false;"><i class="fas fa-tshirt"></i> Productos</a></li>
+                            <li><a href="#" onclick="cambiarSeccion('pedidos'); return false;"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                            <li><a href="#" onclick="cambiarSeccion('usuarios'); return false;"><i class="fas fa-users"></i> Usuarios</a></li>
+                            <li><a href="#" onclick="cambiarSeccion('categorias'); return false;"><i class="fas fa-tags"></i> Categorías</a></li>
+                            <li><a href="#" onclick="cambiarSeccion('cupones'); return false;"><i class="fas fa-percent"></i> Cupones</a></li>
+                            <li><a href="#" onclick="cerrarSesion(); return false;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="admin-main" id="adminMain">
+                        <!-- Dashboard -->
+                        <div id="dashboardSection">
+                            <div class="admin-header">
+                                <h1>Dashboard</h1>
+                                <span class="badge-admin">Admin</span>
+                            </div>
+                            
+                            <div class="admin-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-tshirt"></i></div>
+                                    <div class="stat-number">${totalProductos}</div>
+                                    <div class="stat-label">Productos</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                    <div class="stat-number">${totalUsuarios}</div>
+                                    <div class="stat-label">Usuarios</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                                    <div class="stat-number">${totalPedidos}</div>
+                                    <div class="stat-label">Pedidos</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                                    <div class="stat-number">$${totalVentas.toLocaleString('es-AR')}</div>
+                                    <div class="stat-label">Ventas</div>
+                                </div>
+                            </div>
+                            
+                            <h2 style="font-family: var(--font-serif); margin: 40px 0 20px;">Últimos pedidos</h2>
+                            
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Pedido</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pedidos.slice(-5).reverse().map(p => `
+                                        <tr>
+                                            <td>#${p.id}</td>
+                                            <td>${new Date(p.fecha).toLocaleDateString('es-AR')}</td>
+                                            <td>${p.cliente || 'Cliente'}</td>
+                                            <td>$${p.total.toLocaleString('es-AR')}</td>
+                                            <td><span style="color: #4CAF50;">✓ Confirmado</span></td>
+                                            <td><a href="#" style="color: var(--color-accent);">Ver detalles</a></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Sección Productos (inicialmente oculta) -->
+                        <div id="productosSection" style="display: none;">
+                            <div class="admin-header">
+                                <h1>Productos</h1>
+                                <button class="btn-primary" onclick="mostrarFormProducto()">
+                                    <i class="fas fa-plus"></i> Nuevo Producto
+                                </button>
+                            </div>
+                            
+                            <div id="productosList">
+                                ${renderProductosLista(productos)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-footer">
+                    <p>Bara & Co - Panel de Administración v1.0</p>
+                </div>
+            `;
+            
+            document.getElementById('adminContent').innerHTML = adminHTML;
+        }
+
+        function renderProductosLista(productos) {
+            if (productos.length === 0) {
+                return '<p style="text-align: center; padding: 40px; color: #999;">No hay productos cargados</p>';
+            }
+            
+            return `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${productos.map(p => `
+                            <tr>
+                                <td><img src="${p.imagenes?.[0] || 'https://via.placeholder.com/50'}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+                                <td>${p.nombre}</td>
+                                <td>${p.categoria}</td>
+                                <td>$${p.precio.toLocaleString('es-AR')}</td>
+                                <td>${p.stock || '10'}</td>
+                                <td>
+                                    <a href="#" style="color: var(--color-accent); margin-right: 10px;" onclick="editarProducto(${p.id}); return false;"><i class="fas fa-edit"></i></a>
+                                    <a href="#" style="color: #ff4444;" onclick="eliminarProducto(${p.id}); return false;"><i class="fas fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function cambiarSeccion(seccion) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('#adminMain > div').forEach(div => {
+                div.style.display = 'none';
+            });
+            
+            // Mostrar sección seleccionada
+            document.getElementById(`${seccion}Section`).style.display = 'block';
+            
+            // Actualizar menú activo
+            document.querySelectorAll('.admin-menu a').forEach(a => {
+                a.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function mostrarFormProducto() {
+            const productosSection = document.getElementById('productosSection');
+            productosSection.innerHTML = `
+                <div class="admin-header">
+                    <h1>${window.productoEditando ? 'Editar' : 'Nuevo'} Producto</h1>
+                    <div>
+                        <button class="btn-secondary" onclick="cancelarFormProducto()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="btn-primary" onclick="guardarProducto()" style="margin-left: 10px;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+                
+                <form class="product-form" id="productoForm">
+                    <div class="form-group form-full">
+                        <label>Nombre del producto *</label>
+                        <input type="text" id="productoNombre" placeholder="Ej: Remera Oversize" value="${window.productoEditando?.nombre || ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Categoría *</label>
+                        <select id="productoCategoria" required>
+                            <option value="">Seleccionar</option>
+                            <option value="mujer" ${window.productoEditando?.categoria === 'mujer' ? 'selected' : ''}>Mujer</option>
+                            <option value="hombre" ${window.productoEditando?.categoria === 'hombre' ? 'selected' : ''}>Hombre</option>
+                            <option value="accesorios" ${window.productoEditando?.categoria === 'accesorios' ? 'selected' : ''}>Accesorios</option>
+                            <option value="sale" ${window.productoEditando?.categoria === 'sale' ? 'selected' : ''}>Sale</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Precio *</label>
+                        <input type="number" id="productoPrecio" placeholder="7999" value="${window.productoEditando?.precio || ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="productoStock" placeholder="10" value="${window.productoEditando?.stock || 10}">
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Descripción</label>
+                        <textarea id="productoDescripcion" rows="4" placeholder="Descripción del producto...">${window.productoEditando?.descripcion || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Talles disponibles</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            ${['S', 'M', 'L', 'XL', 'XXL'].map(talle => `
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" value="${talle}" ${window.productoEditando?.talles?.includes(talle) ? 'checked' : ''}> ${talle}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Colores disponibles</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            ${['Negro', 'Blanco', 'Gris', 'Azul', 'Oliva'].map(color => `
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" value="${color}" ${window.productoEditando?.colores?.includes(color) ? 'checked' : ''}> ${color}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Imágenes del producto</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="nuevaImagen" placeholder="URL de la imagen" style="flex: 1;">
+                            <button type="button" class="btn-secondary" onclick="agregarImagenProducto()">Agregar</button>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            ${(window.productoEditando?.imagenes || []).map(img => `
+                                <div class="preview-item">
+                                    <img src="${img}" alt="Preview">
+                                    <span class="preview-remove" onclick="removerImagen(this, '${img}')">&times;</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            window.productoEditando = null;
+        }
+
+        function cancelarFormProducto() {
+            window.productoEditando = null;
+            renderizarAdmin();
+            cambiarSeccion('productos');
+        }
+
+        window.cambiarSeccion = cambiarSeccion;
+        window.mostrarFormProducto = mostrarFormProducto;
+        window.cancelarFormProducto = cancelarFormProducto;
+    </script>
+</body>
+</html>
